@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+    <!--Dialog Title/Header-->
+    <TextView
+        android:id="@+id/dialogHeader"
+        style="@style/TextAppearance.MaterialComponents.Headline5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/design_default_color_primary"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="@string/add_image"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <!--INPUT DIMENSION ROOT-->
+
+    <!--Enter Image Dimensions TextView-->
+    <TextView
+        android:id="@+id/enterImgDimensText"
+        style="@style/CustomTitleTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/enter_image_dimensions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialogHeader" />
+
+    <!--Width EditText-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/widthTIL"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/width"
+        app:layout_constraintEnd_toStartOf="@+id/heightTIL"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/enterImgDimensText">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/widthET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="4" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--Height EditText-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/heightTIL"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/height"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/widthTIL"
+        app:layout_constraintTop_toBottomOf="@+id/enterImgDimensText">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/heightET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="4" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--Fetch Image Button-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/fetchImgBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/fetch_image_btn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/heightTIL" />
+
+        <!--Input Dimensions Root Group-->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/inputDimensionsRoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="enterImgDimensText,widthTIL,heightTIL,fetchImgBtn" />
+
+
+
+
+    <!--PROGRESS INDICATOR ROOT-->
+
+    <!--Loading Image TextView-->
+    <TextView
+        android:id="@+id/progressSubtitle"
+        style="@style/CustomTitleTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/fetching_random_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dialogHeader" />
+
+    <!--Linear Progress Indicator-->
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/linearProgressIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:indeterminate="true"
+        app:layout_constraintTop_toBottomOf="@id/progressSubtitle" />
+
+        <!--Progress Indicator Root Group-->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/progressIndicatorRoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="progressSubtitle,linearProgressIndicator"
+            tools:visibility="gone" />
+
+
+
+
+    <!--ITEM INPUT ROOT (main)-->
+
+    <!--Downloaded Image ImageView-->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/content_description_of_image"
+        android:src="@drawable/ocean"
+        app:layout_constraintEnd_toEndOf="@+id/progressSubtitle"
+        app:layout_constraintStart_toStartOf="@id/progressSubtitle"
+        app:layout_constraintTop_toBottomOf="@+id/dialogHeader" />
+
+
+    <!--Layout for color chips-->
+
+    <!--Choose Color TextView-->
+    <TextView
+        android:id="@+id/choosePaletteTitle"
+        style="@style/CustomTitleTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/choose_a_palette_colour"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <!--Color Chip Group-->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/colorChips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/choosePaletteTitle"
+        app:singleSelection="true">
+
+    </com.google.android.material.chip.ChipGroup>
+
+
+    <!--Layout for label chips-->
+
+    <!--Choose Label TextView-->
+    <TextView
+        android:id="@+id/chooseLabelTitle"
+        style="@style/CustomTitleTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/choose_a_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/colorChips" />
+
+    <!--Label Chip Group-->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/labelChips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chooseLabelTitle"
+        app:singleSelection="true">
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <!--Custom Label EditText-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/customLabelTIL"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/label"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/labelChips">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/customLabelET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName|textCapWords"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <!--Add Image Button-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/addBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/customLabelTIL" />
+
+        <!--Main Item Input Root Group-->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/mainRoot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="imageView,choosePaletteTitle,colorChips,chooseLabelTitle,labelChips,customLabelTIL,addBtn"
+            tools:visibility="gone" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
