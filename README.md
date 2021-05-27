@@ -14,9 +14,5 @@ This is a simple Gallery Application to display images with labels.
 - Get Redirected URL
 - Use of JSON
 - Shared Preferences
-  
-  
 
 ### Have a run at it with the APK [here](https://github.com/shrutiisharma/GalleryApp/releases/download/version1/app-debug.apk)!
-
-
