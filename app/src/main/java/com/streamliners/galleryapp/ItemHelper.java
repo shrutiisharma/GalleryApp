@@ -19,6 +19,7 @@ import com.google.mlkit.vision.label.ImageLabeler;
 import com.google.mlkit.vision.label.ImageLabeling;
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ItemHelper {
 
     private Bitmap bitmap;
     private Set<Integer> colors;
-
+    private String redirectedURL;
 
 
     // Triggers --------------------------------------------------------------------------------------
@@ -49,7 +50,7 @@ public class ItemHelper {
      *                  Listeners are used for any type of asynchronous event
      *                  in order to implement the code to run when an event occurs
      */
-    void fetchData(int x, int y, Context context, OnCompleteListener listener){
+    void fetchData(int x, int y, Context context, OnCompleteListener listener) throws IOException {
 
         this.context = context;
         this.listener = listener;
@@ -57,7 +58,7 @@ public class ItemHelper {
         //...fetch here & when done,
         //Call listener.onFetched(image, colors, labels);
 
-        fetchImage(String.format(rectangularImageURL, x, y));
+        fetchUrl(String.format(rectangularImageURL, x, y));
     }
 
 
@@ -70,7 +71,7 @@ public class ItemHelper {
      *                  Listeners are used for any type of asynchronous event
      *                  in order to implement the code to run when an event occurs
      */
-    void fetchData(int x, Context context, OnCompleteListener listener){
+    void fetchData(int x, Context context, OnCompleteListener listener) throws IOException {
 
         this.context = context;
         this.listener = listener;
@@ -78,7 +79,26 @@ public class ItemHelper {
         //...fetch here & when done,
         //Call listener.onFetched(image, colors, labels);
 
-        fetchImage(String.format(squareImageURL, x));
+        fetchUrl(String.format(squareImageURL, x));
+    }
+
+
+
+    //Fetch URL ----------------------------------------------------------------------------------------
+
+    void fetchUrl(String url) throws IOException {
+        new RedirectURLHelper().fetchRedirectedURL(new RedirectURLHelper.OnCompleteListener() {
+            @Override
+            public void onFetched(String url) {
+                redirectedURL = url;
+                fetchImage(redirectedURL);
+            }
+
+            @Override
+            public void onError(String error) {
+                listener.onError(error);
+            }
+        }).execute(url);
     }
 
 
@@ -94,6 +114,8 @@ public class ItemHelper {
         Glide.with(context)
                 .asBitmap()
                 .load(url)
+              //.diskCacheStrategy(DiskCacheStrategy.NONE)
+              //.skipMemoryCache(true)
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -181,7 +203,7 @@ public class ItemHelper {
                         for(ImageLabel label : labels){
                             strings.add(label.getText());
                         }
-                        listener.onFetched(bitmap, colors, strings);
+                        listener.onFetched(redirectedURL, colors, strings);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -207,7 +229,7 @@ public class ItemHelper {
      * The 3 asyncTasks can't be implemented parallelly so we implement them sequentially, as done above.
      */
     interface OnCompleteListener{
-        void onFetched(Bitmap image, Set<Integer>colors, List<String> labels);
+        void onFetched(String redirectedURL, Set<Integer>colors, List<String> labels);
         void onError(String error);
     }
 }

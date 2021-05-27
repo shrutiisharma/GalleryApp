@@ -14,4 +14,5 @@
     <string name="add">Add</string>
     <string name="custom">Custom</string>
     <string name="ocean">Ocean</string>
+    <string name="no_items_to_show_try_adding_from_the_action_above">No items to show! Try adding from the action above.</string>
 </resources>

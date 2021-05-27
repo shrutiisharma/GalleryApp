@@ -3,8 +3,6 @@ package com.streamliners.galleryapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -15,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.streamliners.galleryapp.databinding.ChipColorBinding;
@@ -22,6 +21,7 @@ import com.streamliners.galleryapp.databinding.ChipLabelBinding;
 import com.streamliners.galleryapp.databinding.DialogAddImageBinding;
 import com.streamliners.galleryapp.models.Item;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -32,8 +32,8 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
     private DialogAddImageBinding b;
     private LayoutInflater inflater;
     private boolean isCustomLabel;
-    private Bitmap image;
     private AlertDialog dialog;
+    private String url;
 
 
 
@@ -126,17 +126,29 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
                 //Square image
                 if (widthStr.isEmpty()){
                     int height = Integer.parseInt(heightStr);
-                    fetchRandomImage(height);
+                    try {
+                        fetchRandomImage(height);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else if (heightStr.isEmpty()){
                     int width = Integer.parseInt(widthStr);
-                    fetchRandomImage(width);
+                    try {
+                        fetchRandomImage(width);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 //Rectangular Image
                 else {
                     int height = Integer.parseInt(heightStr);
                     int width = Integer.parseInt(widthStr);
-                    fetchRandomImage(width, height);
+                    try {
+                        fetchRandomImage(width, height);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -163,7 +175,7 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
      * @param width of the rectangle
      * @param height of the rectangle
      */
-    private void fetchRandomImage(int width, int height) {
+    private void fetchRandomImage (int width, int height) throws IOException {
         new ItemHelper()
                 .fetchData(width, height, context, this);
     }
@@ -173,7 +185,7 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
      * To fetch random square image
      * @param x : side of the square
      */
-    private void fetchRandomImage(int x) {
+    private void fetchRandomImage(int x) throws IOException {
         new ItemHelper()
                 .fetchData(x, context, this);
     }
@@ -187,22 +199,27 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
 
     /**
      * To show data in the dialog
-     * @param image : random image
+     * @param url : url of the image in cache
      * @param colors : colors in the chips
      * @param labels : labels in the chips
      */
-    private void showData(Bitmap image, Set<Integer> colors, List<String> labels) {
-        this.image = image;
-
-        b.imageView.setImageBitmap(image);
-        inflateColorChips(colors);
-        inflateLabelChips(labels);
-        handleCustomLabelInput();
-        handleAddImageEvent();
+    private void showData(String url, Set<Integer> colors, List<String> labels) {
+        this.url = url;
 
         b.progressIndicatorRoot.setVisibility(View.GONE);
         b.mainRoot.setVisibility(View.VISIBLE);
         b.customLabelTIL.setVisibility(View.GONE);
+
+        //Setting image view in binding
+        Glide.with(context)
+                .load(url)
+                .into(b.imageView);
+
+        inflateColorChips(colors);
+        inflateLabelChips(labels);
+
+        handleCustomLabelInput();
+        handleAddImageEvent();
     }
 
 
@@ -280,7 +297,7 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
                         .getChipBackgroundColor().getDefaultColor();
 
                 //Send Callback
-                listener.onImageAdded(new Item(image, color, label));
+                listener.onImageAdded(new Item(url, color, label));
                 dialog.dismiss();
             }
         });
@@ -294,14 +311,14 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
 
     /**
      * onFetched Method from interface onCompleteListener
-     * @param image random image
+     * @param url url of random image
      * @param colors set of colors
      * @param labels list of labels
      */
     @Override
-    public void onFetched(Bitmap image, Set<Integer> colors, List<String> labels) {
+    public void onFetched(String url, Set<Integer> colors, List<String> labels) {
         //Bind Data
-        showData(image, colors, labels);
+        showData(url, colors, labels);
     }
 
 

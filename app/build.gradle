@@ -50,4 +50,7 @@ dependencies {
 
     //palette api
     implementation 'androidx.palette:palette:1.0.0'
+
+    //gson library
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
