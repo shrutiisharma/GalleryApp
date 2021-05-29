@@ -252,6 +252,19 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!--Share Image Button-->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/shareImgBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/share"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBaseline_toBaselineOf="@+id/addBtn"
+            app:layout_constraintTop_toBottomOf="@+id/customLabelTIL"
+            app:layout_constraintEnd_toStartOf="@+id/addBtn" />
 
     <!--Add Image Button-->
     <com.google.android.material.button.MaterialButton
@@ -272,7 +285,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="imageView,choosePaletteTitle,colorChips,chooseLabelTitle,labelChips,customLabelTIL,addBtn"
+            app:constraint_referenced_ids="imageView,choosePaletteTitle,colorChips,chooseLabelTitle,labelChips,customLabelTIL,shareImgBtn,addBtn"
             tools:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

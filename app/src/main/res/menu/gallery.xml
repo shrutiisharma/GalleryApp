@@ -3,8 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/add_image_from_device"
+        android:icon="@drawable/ic_add_device_image"
+        android:title="@string/add_image_from_your_device"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/add_image"
         android:icon="@drawable/ic_add_image"
-        android:title="Add Image"
-        app:showAsAction="always"/>
+        android:title="@string/add_image"
+        app:showAsAction="ifRoom" />
+
 </menu>

@@ -21,7 +21,7 @@
             style="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="300dp"
+            android:layout_marginTop="280dp"
             android:gravity="center"
             android:text="@string/no_items_to_show_try_adding_from_the_action_above" />
     </LinearLayout>
