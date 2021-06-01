@@ -6,7 +6,7 @@ This is a simple Gallery Application to display images with labels.
 
 - Implementing Dialogs & Actions Menu
 - Fetching image from internet
-- Fetching labels and palette for image using ML model
+- Fetching labels and palette for image using ML model 
 - Dynamic Views
 - Asynchronous Task
 - Custom callback/listeners
@@ -15,6 +15,6 @@ This is a simple Gallery Application to display images with labels.
 - Use of JSON
 - Shared Preferences
 - Add images from device
-- Share image & Share screenshot
+- Share image & Share screenshot of card
 
 ### Have a run at it with the APK [here](https://github.com/shrutiisharma/GalleryApp/releases/download/version1/app-debug.apk)!
