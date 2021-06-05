@@ -9,7 +9,7 @@ This is a simple Gallery Application to display images with labels.
 - Fetching labels and palette for image using ML model 
 - Dynamic Views
 - Asynchronous Task
-- Custom callback/listeners
+- Custom callbacks/listeners
 - Ripple Click effect
 - Get Redirected URL
 - Use of JSON
