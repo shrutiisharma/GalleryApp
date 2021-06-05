@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -113,8 +116,8 @@ public class GalleryActivity extends AppCompatActivity {
                     @Override
                     public void onImageAdded(Item item) {
                         inflateViewForItem(item);
-                        shareCard();
                         items.add(item);
+                        shareCard();
                     }
 
                     @Override
@@ -228,7 +231,7 @@ public class GalleryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Bitmap icon = loadBitmapFromView(b.list);
+                Bitmap icon = loadBitmapFromView(binding.getRoot());
 
                 // Calling the intent to share the bitmap
                 Intent share = new Intent(Intent.ACTION_SEND);
@@ -256,12 +259,28 @@ public class GalleryActivity extends AppCompatActivity {
         });
     }
 
-    public static Bitmap loadBitmapFromView(View v) {
-        Bitmap bitmap;
-        v.setDrawingCacheEnabled(true);
-        bitmap = Bitmap.createBitmap(v.getDrawingCache());
-        v.setDrawingCacheEnabled(false);
-        return bitmap;
+    /**
+     * To Load Bitmap From View
+     * @param view to load the view
+     * @return bitmap i.e screenshot of card
+     */
+    public static Bitmap loadBitmapFromView(View view) {
+        //Define a bitmap with the same size as the view
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        //Bind a canvas to it
+        Canvas canvas = new Canvas(returnedBitmap);
+        //Get the view's background
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            //has background drawable, then draw it on the canvas
+            bgDrawable.draw(canvas);
+        else
+            //does not have background drawable, then draw white background on the canvas
+            canvas.drawColor(Color.WHITE);
+        // draw the view on the canvas
+        view.draw(canvas);
+        //return the bitmap
+        return returnedBitmap;
     }
 
 

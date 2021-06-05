@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="50dp"
     android:layout_height="50dp"
-    android:text="    "
+    android:text="  "
     style="@style/Widget.MaterialComponents.Chip.Filter"
     app:chipBackgroundColor="@color/design_default_color_primary"
     app:checkedIconTint="@color/white"
