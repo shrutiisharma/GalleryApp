@@ -1,10 +1,8 @@
 package com.streamliners.galleryapp;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,6 +18,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -76,6 +75,24 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.gallery, menu);
+
+        //Search functionality
+        androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView)menu.findItem(R.id.search).getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                adapter.filter(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.filter(newText);
+                return true;
+            }
+        });
+
         return true;
     }
 
@@ -112,7 +129,7 @@ public class GalleryActivity extends AppCompatActivity {
                     @Override
                     public void onImageAdded(Item item) {
                         items.add(item);
-                        inflateViewForItem(items);
+                        inflateViewForItem();
                     }
 
                     @Override
@@ -128,7 +145,7 @@ public class GalleryActivity extends AppCompatActivity {
     /**
      * To inflate view for the item
      */
-    private void inflateViewForItem(List<Item> item) {
+    private void inflateViewForItem() {
 
         adapter = new ItemAdapter(this, items);
 
@@ -191,7 +208,7 @@ public class GalleryActivity extends AppCompatActivity {
                 @Override
                 public void onImageAdded(Item item) {
                     items.add(item);
-                    inflateViewForItem(items);
+                    inflateViewForItem();
                     b.noItemsTV.setVisibility(View.GONE);
                 }
 
@@ -308,7 +325,7 @@ public class GalleryActivity extends AppCompatActivity {
             Item item = jsonToItem(preferences.getString(Constants.ITEMS + i, ""));
 
             items.add(item);
-            inflateViewForItem(items);
+            inflateViewForItem();
         }
     }
 

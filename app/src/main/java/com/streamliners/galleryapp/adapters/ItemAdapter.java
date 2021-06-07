@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide;
 import com.streamliners.galleryapp.databinding.ItemCardBinding;
 import com.streamliners.galleryapp.models.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
@@ -33,6 +34,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         this.allItems = allItems;
         this.visibleItems = allItems;
     }
+
+
+
 
     /**
      * Inflates layout & returns viewHolder for given type
@@ -105,6 +109,41 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     public int getItemCount() {
         return visibleItems.size();
     }
+
+
+
+
+
+    /**
+     * To filter the list
+     * @param query for search action
+     */
+    public void filter(String query) {
+
+        //No query, show all items
+        if (query.trim().isEmpty()){
+            visibleItems = allItems;
+            notifyDataSetChanged();
+            return;
+        }
+
+        //filter & add to visibleCourses
+        List<Item> temp = new ArrayList<>();
+        query = query.toLowerCase();
+
+        for (Item item : allItems) {
+            if (item.label.toLowerCase().contains(query))
+                temp.add(item);
+        }
+
+        visibleItems = temp;
+
+        //Refresh list
+        notifyDataSetChanged();
+    }
+
+
+
 
     /**
      * ViewHolder

@@ -2,7 +2,7 @@
     <string name="app_name">My Gallery</string>
     <string name="content_description_of_image">Content Description of Image</string>
     <string name="cliff">Cliff</string>
-    <string name="add_image">Add Image</string>
+    <string name="add_image">Add Image from Internet</string>
     <string name="enter_image_dimensions">Enter image dimensions</string>
     <string name="width">Width</string>
     <string name="height">Height</string>
@@ -15,6 +15,7 @@
     <string name="custom">Custom</string>
     <string name="ocean">Ocean</string>
     <string name="no_items_to_show_try_adding_from_the_action_above">No items to show!\n Try adding from the actions above.</string>
-    <string name="add_image_from_your_device">Add Image from your Device</string>
+    <string name="add_image_from_your_device">Add Image from Device</string>
     <string name="share">Share</string>
+    <string name="search_image">Search Image</string>
 </resources>
