@@ -20,10 +20,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
+import com.streamliners.galleryapp.adapters.ItemAdapter;
 import com.streamliners.galleryapp.databinding.ActivityGalleryBinding;
 import com.streamliners.galleryapp.databinding.ItemCardBinding;
 import com.streamliners.galleryapp.models.Item;
@@ -43,6 +44,7 @@ public class GalleryActivity extends AppCompatActivity {
     private static final int REQUEST_LOAD_IMAGE = 0;
 
     private ItemCardBinding binding;
+    ItemAdapter adapter;
 
     /**
      * It initialises the activity.
@@ -104,20 +106,13 @@ public class GalleryActivity extends AppCompatActivity {
     /**
      * To show addImage dialog
      */
-    @SuppressLint("SourceLockedOrientationActivity")
     private void showAddImageDialog() {
-        if (this.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            // To set the screen orientation in portrait mode
-            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-
         new AddImageDialog()
                 .show(this, new AddImageDialog.OnCompleteListener() {
                     @Override
                     public void onImageAdded(Item item) {
-                        inflateViewForItem(item);
                         items.add(item);
-                        shareCard();
+                        inflateViewForItem(items);
                     }
 
                     @Override
@@ -132,25 +127,14 @@ public class GalleryActivity extends AppCompatActivity {
 
     /**
      * To inflate view for the item
-     * @param item to be added in the gallery activity in a card view
      */
-    private void inflateViewForItem(Item item) {
+    private void inflateViewForItem(List<Item> item) {
 
-        // Inflate Data
-        binding = ItemCardBinding.inflate(getLayoutInflater());
+        adapter = new ItemAdapter(this, items);
 
-        //Bind Data
-        Glide.with(this)
-                .load(item.url)
-                .into(binding.imageView);
-        binding.title.setText(item.label);
-        binding.title.setBackgroundColor(item.color);
+        b.list.setLayoutManager(new LinearLayoutManager(this));
 
-
-        //Add it to the list
-        b.list.addView(binding.getRoot());
-
-        shareCard();
+        b.list.setAdapter(adapter);
 
         if (items.isEmpty()) {
             b.noItemsTV.setVisibility(View.VISIBLE);
@@ -207,7 +191,7 @@ public class GalleryActivity extends AppCompatActivity {
                 @Override
                 public void onImageAdded(Item item) {
                     items.add(item);
-                    inflateViewForItem(item);
+                    inflateViewForItem(items);
                     b.noItemsTV.setVisibility(View.GONE);
                 }
 
@@ -324,7 +308,7 @@ public class GalleryActivity extends AppCompatActivity {
             Item item = jsonToItem(preferences.getString(Constants.ITEMS + i, ""));
 
             items.add(item);
-            inflateViewForItem(item);
+            inflateViewForItem(items);
         }
     }
 

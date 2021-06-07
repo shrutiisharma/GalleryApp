@@ -18,4 +18,18 @@ public class Item {
         this.color = color;
         this.label = label;
     }
+
+    //getters
+    public String getUrl() {
+        return url;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
 }
