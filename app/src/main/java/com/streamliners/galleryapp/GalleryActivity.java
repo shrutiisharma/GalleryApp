@@ -45,6 +45,8 @@ public class GalleryActivity extends AppCompatActivity {
     private ItemCardBinding binding;
     ItemAdapter adapter;
 
+
+
     /**
      * It initialises the activity.
      * @param savedInstanceState : reference to a Bundle object that is passed into the onCreate method of every Android Activity
@@ -104,17 +106,24 @@ public class GalleryActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
         if (item.getItemId() == R.id.add_image){
             showAddImageDialog();
             return true;                                            //return true signifies that we have handled this event.
         }
+
         if(item.getItemId() == R.id.add_image_from_device){
             addFromDevice();
             return true;
         }
+
+        if (item.getItemId() == R.id.sort_Alphabetically){
+            adapter.sortItemsAlphabetically();
+            return true;
+        }
+
         return false;
     }
-
 
 
 

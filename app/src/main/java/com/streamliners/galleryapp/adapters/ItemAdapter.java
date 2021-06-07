@@ -13,6 +13,8 @@ import com.streamliners.galleryapp.databinding.ItemCardBinding;
 import com.streamliners.galleryapp.models.Item;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
@@ -142,6 +144,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         notifyDataSetChanged();
     }
 
+
+
+    /**
+     * To sort the list alphabetically
+     */
+    public void sortItemsAlphabetically() {
+
+        //noinspection Convert2Lambda
+        Collections.sort(allItems, new Comparator<Item>() {
+            @Override
+            public int compare(Item o1, Item o2) {
+                return o1.label.compareTo(o2.label);
+            }
+        });
+
+        visibleItems = allItems;
+        notifyDataSetChanged();
+    }
 
 
 

@@ -7,20 +7,26 @@
         android:id="@+id/search"
         android:icon="@drawable/ic_search"
         android:title="@string/search_image"
-        app:showAsAction="always"
+        app:showAsAction="always|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         tools:ignore="AlwaysShowAction" />
 
     <item
+        android:id="@+id/sort_Alphabetically"
+        android:icon="@drawable/ic_sort_alphabetically"
+        android:title="@string/sort_alphabetically"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/add_image_from_device"
         android:icon="@drawable/ic_add_device_image"
-        android:title="@string/add_image_from_your_device"
+        android:title="@string/add_image_from_device"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/add_image"
         android:icon="@drawable/ic_add_image"
-        android:title="@string/add_image"
+        android:title="@string/add_image_from_internet"
         app:showAsAction="never" />
 
 </menu>
