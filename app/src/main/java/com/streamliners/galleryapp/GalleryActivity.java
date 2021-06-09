@@ -1,13 +1,8 @@
 package com.streamliners.galleryapp;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,16 +14,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
 import com.streamliners.galleryapp.adapters.ItemAdapter;
 import com.streamliners.galleryapp.databinding.ActivityGalleryBinding;
-import com.streamliners.galleryapp.databinding.ItemCardBinding;
 import com.streamliners.galleryapp.models.Item;
 
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,10 +37,9 @@ public class GalleryActivity extends AppCompatActivity {
 
     private static final int REQUEST_LOAD_IMAGE = 0;
 
-    private ItemCardBinding binding;
     ItemAdapter adapter;
 
-
+    ItemTouchHelper itemTouchHelper;
 
     /**
      * It initialises the activity.
@@ -162,6 +156,8 @@ public class GalleryActivity extends AppCompatActivity {
 
         b.list.setAdapter(adapter);
 
+        itemRemove();
+
         if (items.isEmpty()) {
             b.noItemsTV.setVisibility(View.VISIBLE);
         } else {
@@ -173,6 +169,7 @@ public class GalleryActivity extends AppCompatActivity {
 
 
     //Fetch Image from Device---------------------------------------------------------------------------
+
     /**
      * To add image from the device
      */
@@ -235,63 +232,34 @@ public class GalleryActivity extends AppCompatActivity {
 
 
 
-    //Share Image ---------------------------------------------------------------------------------------
-    private void shareCard() {
-        binding.shareCardBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Bitmap icon = loadBitmapFromView(binding.getRoot());
-
-                // Calling the intent to share the bitmap
-                Intent share = new Intent(Intent.ACTION_SEND);
-                share.setType("image/jpeg");
-
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, "title");
-                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-                Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        values);
-
-
-                OutputStream outputStream;
-                try {
-                    outputStream = GalleryActivity.this.getContentResolver().openOutputStream(uri);
-                    icon.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                    outputStream.close();
-                } catch (Exception e) {
-                    System.err.println(e.toString());
-                }
-
-                share.putExtra(Intent.EXTRA_STREAM, uri);
-                startActivity(Intent.createChooser(share, "Share Image"));
-            }
-        });
-    }
+    //Swipe to Remove Functionality ------------------------------------------------------------------------
 
     /**
-     * To Load Bitmap From View
-     * @param view to load the view
-     * @return bitmap i.e screenshot of card
+     * Swipe to Remove the Card
      */
-    public static Bitmap loadBitmapFromView(View view) {
-        //Define a bitmap with the same size as the view
-        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
-        //Bind a canvas to it
-        Canvas canvas = new Canvas(returnedBitmap);
-        //Get the view's background
-        Drawable bgDrawable = view.getBackground();
-        if (bgDrawable != null)
-            //has background drawable, then draw it on the canvas
-            bgDrawable.draw(canvas);
-        else
-            //does not have background drawable, then draw white background on the canvas
-            canvas.drawColor(Color.WHITE);
-        // draw the view on the canvas
-        view.draw(canvas);
-        //return the bitmap
-        return returnedBitmap;
+    private void itemRemove() {
+        itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(b.list);
     }
+
+
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.DOWN | ItemTouchHelper.UP) {
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+            //Remove swiped item from list and notify the RecyclerView
+            //noinspection deprecation
+            int position = viewHolder.getAdapterPosition();
+            items.remove(position);
+            adapter.notifyDataSetChanged();
+        }
+    };
 
 
 
