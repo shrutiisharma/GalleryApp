@@ -16,5 +16,11 @@ This is a simple Gallery Application to display images with labels.
 - Shared Preferences
 - Add images from device
 - Share image & Share screenshot of card
+- Implement the RecyclerView
+- Add drag & drop functionality
+- Add Sort alphabetically action to the action bar
+- Add Search functionality
+- Add Swipe to remove functionality
+
 
 ### Have a run at it with the APK [here](https://github.com/shrutiisharma/GalleryApp/releases/download/version1/app-debug.apk)!
