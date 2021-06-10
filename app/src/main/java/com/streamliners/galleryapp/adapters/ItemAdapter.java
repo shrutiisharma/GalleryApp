@@ -164,6 +164,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     }
 
 
+    /**
+     * To Move Items For Drag-Drop Functionality
+     * @param fromPosition initial position
+     * @param toPosition final position
+     */
+    public void onItemMove(int fromPosition, int toPosition) {
+
+        Collections.swap(allItems, allItems.indexOf(visibleItems.get(fromPosition)), allItems.indexOf(visibleItems.get(toPosition)));
+        Collections.swap(visibleItems, fromPosition, toPosition);
+
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+
 
     /**
      * ViewHolder

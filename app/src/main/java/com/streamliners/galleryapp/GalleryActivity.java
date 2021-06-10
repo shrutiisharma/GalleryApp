@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -156,7 +157,7 @@ public class GalleryActivity extends AppCompatActivity {
 
         b.list.setAdapter(adapter);
 
-        itemRemove();
+        callbackForItem();
 
         if (items.isEmpty()) {
             b.noItemsTV.setVisibility(View.VISIBLE);
@@ -233,30 +234,38 @@ public class GalleryActivity extends AppCompatActivity {
 
 
 
-    //Swipe to Remove Functionality ------------------------------------------------------------------------
+    //Swipe to Remove & Drag and Drop Functionality ------------------------------------------------------------------------
 
     /**
-     * Swipe to Remove the Card
+     * Callback for Item
+     * To implement swipe to remove & drag and drop functionality
      */
-    private void itemRemove() {
+    private void callbackForItem() {
         itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(b.list);
     }
 
 
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT | ItemTouchHelper.DOWN | ItemTouchHelper.UP) {
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback( ItemTouchHelper.DOWN | ItemTouchHelper.UP, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-            return false;
+
+            adapter.onItemMove(viewHolder.getAbsoluteAdapterPosition(),
+                    target.getAbsoluteAdapterPosition());
+            return true;
         }
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-            //Remove swiped item from list and notify the RecyclerView
-            //noinspection deprecation
-            int position = viewHolder.getAdapterPosition();
+
+            int position = viewHolder.getAbsoluteAdapterPosition();
             items.remove(position);
+
+            Toast.makeText(GalleryActivity.this, "Image Removed!", Toast.LENGTH_SHORT).show();
+            if (items.isEmpty())
+                b.list.setVisibility(View.VISIBLE);
+            
             adapter.notifyDataSetChanged();
         }
     };
