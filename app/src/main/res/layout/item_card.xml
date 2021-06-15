@@ -37,16 +37,6 @@
                 android:textColor="@color/white"
                 android:padding="8dp"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/shareCardBtn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/share"
-                android:textAlignment="center"
-                app:icon="@drawable/ic_share"
-                app:iconGravity="textStart"/>
-
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </FrameLayout>

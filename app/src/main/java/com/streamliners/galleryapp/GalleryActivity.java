@@ -1,9 +1,19 @@
 package com.streamliners.galleryapp;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
@@ -21,10 +31,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.streamliners.galleryapp.adapters.ItemAdapter;
 import com.streamliners.galleryapp.databinding.ActivityGalleryBinding;
+import com.streamliners.galleryapp.databinding.ItemCardBinding;
+import com.streamliners.galleryapp.helpers.ItemTouchHelperCallback;
 import com.streamliners.galleryapp.models.Item;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +48,7 @@ public class GalleryActivity extends AppCompatActivity {
     ActivityGalleryBinding b;
 
     SharedPreferences preferences;
+    Gson gson = new Gson();
     List<Item> items = new ArrayList<>();
 
     private static final int REQUEST_LOAD_IMAGE = 0;
@@ -41,6 +56,11 @@ public class GalleryActivity extends AppCompatActivity {
     ItemAdapter adapter;
 
     ItemTouchHelper itemTouchHelper;
+    Context context = this;
+
+    ItemCardBinding binding;
+    int mode = 0;
+    private static final int RESULT = 1001 ;
 
     /**
      * It initialises the activity.
@@ -56,8 +76,14 @@ public class GalleryActivity extends AppCompatActivity {
         setTitle("Gallery");
 
         preferences = getPreferences(MODE_PRIVATE);
-        loadSharedPreferences();
 
+        if(savedInstanceState != null){
+            savedInstance(savedInstanceState);
+        }else{
+            loadSharedPreferences();
+        }
+
+        enableDisableDrag();
     }
 
 
@@ -128,8 +154,8 @@ public class GalleryActivity extends AppCompatActivity {
      * To show addImage dialog
      */
     private void showAddImageDialog() {
-        new AddImageDialog()
-                .show(this, new AddImageDialog.OnCompleteListener() {
+        new ImageOperationsDialog()
+                .show(this, new ImageOperationsDialog.OnCompleteListener() {
                     @Override
                     public void onImageAdded(Item item) {
                         items.add(item);
@@ -155,9 +181,16 @@ public class GalleryActivity extends AppCompatActivity {
 
         b.list.setLayoutManager(new LinearLayoutManager(this));
 
-        b.list.setAdapter(adapter);
+        ItemTouchHelper itemTouchHelper1 = new ItemTouchHelper(simpleItemTouchCallback);
+        adapter.setListItemAdapterHelper(itemTouchHelper);
+        itemTouchHelper1.attachToRecyclerView(b.list);
 
-        callbackForItem();
+        ItemTouchHelper.Callback callback = new ItemTouchHelperCallback(adapter);
+        itemTouchHelper = new ItemTouchHelper(callback);
+        adapter.setListItemAdapterHelper(itemTouchHelper);
+
+        b.list.setAdapter(adapter);
+        dragDropButtonRestore();
 
         if (items.isEmpty()) {
             b.noItemsTV.setVisibility(View.VISIBLE);
@@ -211,7 +244,7 @@ public class GalleryActivity extends AppCompatActivity {
             String uri = selectedImage.toString();
 
             //show data
-            new AddImageFromDeviceDialog().show(this, uri, new AddImageFromDeviceDialog.OnCompleteListener() {
+            new ImageOperationsDialog().fetchDataFromDevice(uri, this, new ImageOperationsDialog.OnCompleteListener() {
                 @Override
                 public void onImageAdded(Item item) {
                     items.add(item);
@@ -239,21 +272,19 @@ public class GalleryActivity extends AppCompatActivity {
     /**
      * Callback for Item
      * To implement swipe to remove & drag and drop functionality
-     */
+     *//*
     private void callbackForItem() {
         itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(b.list);
-    }
+        adapter.setListItemAdapterHelper(itemTouchHelper);
+    }*/
 
 
-    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback( ItemTouchHelper.DOWN | ItemTouchHelper.UP, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-
-            adapter.onItemMove(viewHolder.getAbsoluteAdapterPosition(),
-                    target.getAbsoluteAdapterPosition());
-            return true;
+            return false;
         }
 
         @Override
@@ -272,6 +303,234 @@ public class GalleryActivity extends AppCompatActivity {
 
 
 
+
+
+    private void enableDisableDrag() {
+        b.dragListener.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("UseCompatLoadingForColorStateLists")
+            @Override
+            public void onClick(View v) {
+                if(mode == 0){
+                    mode = 1;
+                    adapter.mode = 1;
+                    Toast.makeText(context,"Drag Enabled!",Toast.LENGTH_SHORT).show();
+                    List<ItemAdapter.ItemViewHolder> holders = adapter.holderList;
+                    b.dragListener.setBackgroundTintList(getResources().getColorStateList(R.color.purple_500));
+                    b.dragListener.setRippleColor(getResources().getColorStateList(R.color.purple_700));
+
+                    b.dragListener.setImageResource(R.drawable.ic_swap_vertical_circle);
+                    for(int i = 0; i < holders.size(); i++){
+                        holders.get(i).eventListenerHandler();
+                    }
+                    itemTouchHelper.attachToRecyclerView(b.list);
+                }
+                else{
+                    mode = 0;
+                    adapter.mode = 0;
+                    Toast.makeText(context,"Drag Disabled!",Toast.LENGTH_SHORT).show();
+                    List<ItemAdapter.ItemViewHolder> holders = adapter.holderList;
+                    for(int i = 0; i < holders.size(); i++){
+                        holders.get(i).eventListenerHandler();
+                    }
+                    b.dragListener.setBackgroundTintList(getResources().getColorStateList(R.color.purple_700));
+                    b.dragListener.setRippleColor(getResources().getColorStateList(R.color.purple_500));
+                    b.dragListener.setImageResource(R.drawable.ic_swap_vertical_circle_unselected);
+                    itemTouchHelper.attachToRecyclerView(null);
+                }
+
+            }
+        });
+    }
+
+    @SuppressLint("UseCompatLoadingForColorStateLists")
+    void dragDropButtonRestore() {
+        if (mode == 1) {
+            mode = 1;
+            adapter.mode = 1;
+            List<ItemAdapter.ItemViewHolder> holders = adapter.holderList;
+            b.dragListener.setBackgroundTintList(getResources().getColorStateList(R.color.purple_500));
+            b.dragListener.setRippleColor(getResources().getColorStateList(R.color.purple_700));
+
+            b.dragListener.setImageResource(R.drawable.ic_swap_vertical_circle);
+            for (int i = 0; i < holders.size(); i++) {
+                holders.get(i).eventListenerHandler();
+            }
+            itemTouchHelper.attachToRecyclerView(b.list);
+        } else {
+            mode = 0;
+            adapter.mode = 0;
+            List<ItemAdapter.ItemViewHolder> holders = adapter.holderList;
+            for (int i = 0; i < holders.size(); i++) {
+                holders.get(i).eventListenerHandler();
+            }
+            b.dragListener.setBackgroundTintList(getResources().getColorStateList(R.color.purple_700));
+            b.dragListener.setRippleColor(getResources().getColorStateList(R.color.purple_500));
+            b.dragListener.setImageResource(R.drawable.ic_swap_vertical_circle_unselected);
+            itemTouchHelper.attachToRecyclerView(null);
+        }
+    }
+
+
+    @Override
+    //Handling events of Context Menu Item Selection:
+    public boolean onContextItemSelected (MenuItem item) {
+        //For edit image option:
+        if (item.getItemId() == R.id.editCard){
+            editImage();
+            return true;
+        }
+
+
+        //For delete image option:
+        if (item.getItemId() == R.id.deleteCard){
+            Toast.makeText(this, "Swipe to delete the item!", Toast.LENGTH_LONG).show();
+            return true;
+        }
+
+        //For share image option:
+        if(item.getItemId() == R.id.shareCard){
+            sharePermission();
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+
+    private void editImage() {
+        int index = adapter.index;
+        binding = adapter.itemCardBinding;
+        new ImageOperationsDialog().editFetchImage(this, items.get(index), new ImageOperationsDialog.OnCompleteListener() {
+            @Override
+            public void onImageAdded(Item item) {
+                items.set(index,item);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(String error) {
+                new MaterialAlertDialogBuilder(GalleryActivity.this)
+                        .setTitle("ERROR")
+                        .setMessage(error)
+                        .show();
+            }
+        });
+    }
+
+
+    private void sharePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+                requestPermissions(permission, RESULT);
+            }
+
+            else
+            {
+                shareItem(binding);
+            }
+        }
+        else{
+            shareItem(binding);
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+            shareItem(binding);
+        }
+        else{
+            Toast.makeText(this, "Storage permission Denied", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareItem(ItemCardBinding binding){
+
+        Bitmap icon = loadBitmapFromView(binding.getRoot());
+
+
+        // Calling the intent to share the bitmap
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "title");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                values);
+
+
+        OutputStream outputStream;
+        try {
+            outputStream = getContentResolver().openOutputStream(uri);
+            icon.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.close();
+        } catch (Exception e) {
+            System.err.println(e.toString());
+        }
+
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(share, "Share Image"));
+    }
+
+
+
+    /**
+     * To Load Bitmap From View
+     * @param view to load the view
+     * @return bitmap i.e screenshot of card
+     */
+    public static Bitmap loadBitmapFromView(View view) {
+        //Define a bitmap with the same size as the view
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        //Bind a canvas to it
+        Canvas canvas = new Canvas(returnedBitmap);
+        //Get the view's background
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            //has background drawable, then draw it on the canvas
+            bgDrawable.draw(canvas);
+        else
+            //does not have background drawable, then draw white background on the canvas
+            canvas.drawColor(Color.WHITE);
+        // draw the view on the canvas
+        view.draw(canvas);
+        //return the bitmap
+        return returnedBitmap;
+    }
+
+
+    /**
+     * This method will save the item card so that when the screen is rotated the data is not lost.
+     */
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        String json = gson.toJson(items);
+        outState.putString(Constants.NO_OF_IMG, json);
+    }
+
+    /**
+     * This method contains the saved instance data and it will prevent loss of data when the screen
+     *  is rotated.
+     * @param savedInstanceState : reference to a Bundle object that is passed into the onCreate method of every Android Activity
+     */
+    private void savedInstance(Bundle savedInstanceState) {
+        //b.noItemsTV.setVisibility(View.GONE);
+        String json = savedInstanceState.getString(Constants.NO_OF_IMG, null);
+        items = gson.fromJson(json, new TypeToken<List<Item>>() {
+        }.getType());
+        if(items != null){
+            b.noItemsTV.setVisibility(View.GONE);
+            inflateViewForItem();
+        }else{
+            items = new ArrayList<>();
+            b.noItemsTV.setVisibility(View.VISIBLE);
+        }
+    }
 
     //Shared Preferences -------------------------------------------------------------------------------
 

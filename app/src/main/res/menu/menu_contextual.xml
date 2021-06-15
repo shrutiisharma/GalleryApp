@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/editCard"
+        android:title="@string/editCard"/>
+
+    <item
+        android:id="@+id/deleteCard"
+        android:title="@string/deleteCard"/>
+
+    <item
+        android:id="@+id/shareCard"
+        android:title="@string/share"/>
+
+</menu>

@@ -7,4 +7,4 @@
     android:text="@string/ocean"
     style="@style/Widget.MaterialComponents.Chip.Filter"
     app:checkedIconTint="@color/black"
-    tools:showIn="@layout/dialog_add_image" />
+    tools:showIn="@layout/dialog_image_operations" />

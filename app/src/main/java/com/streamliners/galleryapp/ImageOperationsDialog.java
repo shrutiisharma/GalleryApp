@@ -29,24 +29,27 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.streamliners.galleryapp.databinding.ChipColorBinding;
 import com.streamliners.galleryapp.databinding.ChipLabelBinding;
-import com.streamliners.galleryapp.databinding.DialogAddImageBinding;
+import com.streamliners.galleryapp.databinding.DialogImageOperationsBinding;
+import com.streamliners.galleryapp.helpers.ItemHelper;
 import com.streamliners.galleryapp.models.Item;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-public class AddImageDialog implements ItemHelper.OnCompleteListener{
+public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
 
     private Context context;
     private OnCompleteListener listener;
-    private DialogAddImageBinding b;
+    private DialogImageOperationsBinding b;
     private LayoutInflater inflater;
     private boolean isCustomLabel;
     private AlertDialog dialog;
     private String url;
-
+    private Item item;
+    private boolean isAlreadyChecked;
 
 
     /**
@@ -55,24 +58,10 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
      * @param listener : For creating asynchronous callback.
      */
     void show(Context context, OnCompleteListener listener) {
-        this.context = context;
-        this.listener = listener;
 
-        //Inflate Dialog's Layout
-        if (context instanceof GalleryActivity) {
-            inflater = ((GalleryActivity) context).getLayoutInflater();
-            b = DialogAddImageBinding.inflate(inflater);
-        }
-        else{
-            dialog.dismiss();
-            listener.onError("Cast Exception.");
+        if (!initializingDialog(context,listener)){
             return;
         }
-
-        //Create & show dialog
-        dialog = new MaterialAlertDialogBuilder(context, R.style.CustomDialogTheme)
-                .setView(b.getRoot())
-                .show();
 
         //Handle events
         handleDimensionsInput();
@@ -83,6 +72,29 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
     }
 
 
+    private boolean initializingDialog(Context context,OnCompleteListener listener){
+        this.context=context;
+        this.listener = listener;
+
+        //Inflate Dialog's Layout
+        if (context instanceof GalleryActivity){
+            inflater = ((GalleryActivity)context).getLayoutInflater();
+            b = DialogImageOperationsBinding.inflate(inflater);
+        }
+        else {
+            dialog.dismiss();
+            listener.onError("Cast Exception:");
+            return false;
+        }
+
+        //Create and Show Dialog:
+        dialog= new MaterialAlertDialogBuilder(context,R.style.CustomDialogTheme)
+                .setView(b.getRoot())
+                .setCancelable(false)
+                .show();
+
+        return true;
+    }
 
     //Utils-------------------------------------------------------------------------------------------------
 
@@ -121,7 +133,7 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
             @Override
             public void onClick(View v) {
                 //Get strings from ET
-                String widthStr = b.widthET.getText().toString().trim(), heightStr = b.heightET.getText().toString().trim();
+                String widthStr = Objects.requireNonNull(b.widthET.getText()).toString().trim(), heightStr = Objects.requireNonNull(b.heightET.getText()).toString().trim();
 
                 //Guard Code
                 if (widthStr.isEmpty() && heightStr.isEmpty()) {
@@ -205,8 +217,56 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
 
 
 
+    public void fetchDataFromDevice(String url,Context context,OnCompleteListener listener){
+        this.listener = listener;
+        this.context = context;
+
+        if (context instanceof GalleryActivity) {
+            inflater = ((GalleryActivity) context).getLayoutInflater();
+            b = DialogImageOperationsBinding.inflate(inflater);
+        } else {
+            dialog.dismiss();
+            listener.onError("Cast Exception");
+            return;
+        }
+
+        dialog = new MaterialAlertDialogBuilder(context)
+                .setView(b.getRoot())
+                .show();
+
+        b.inputDimensionsRoot.setVisibility(View.GONE);
+        b.progressSubtitle.setText(R.string.fetching_image);
+        b.progressIndicatorRoot.setVisibility(View.VISIBLE);
+
+        new ItemHelper()
+                .fetchData(url,context,this);
+
+    }
 
 
+
+    public void editFetchImage(Context context,Item item,OnCompleteListener listener){
+        this.url = item.url;
+        this.item = item;
+
+        if(!initializingDialog(context,listener)){
+            return;
+        }
+
+        b.dialogHeader.setText(R.string.edit_image);
+        b.addBtn.setText(R.string.update);
+        b.progressSubtitle.setText(R.string.loading_image);
+        b.choosePaletteTitle.setText(R.string.choose_a_new_palette_color);
+        b.chooseLabelTitle.setText(R.string.choose_a_new_label);
+        editCard(url);
+    }
+
+    private void editCard(String imageUrl) {
+        b.inputDimensionsRoot.setVisibility(View.GONE);
+        b.progressIndicatorRoot.setVisibility(View.VISIBLE);
+
+        new ItemHelper().editCard(imageUrl, context, this);
+    }
 
     //Step 3: Show Data------------------------------------------------------------------------------------------
 
@@ -246,6 +306,12 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
             ChipLabelBinding binding = ChipLabelBinding.inflate(inflater);
             binding.getRoot().setText(label);
             b.labelChips.addView(binding.getRoot());
+
+            //For preSelected Label chips on edit:
+            if (item != null && item.label.equals(label)) {
+                binding.getRoot().setChecked(true);
+                isAlreadyChecked = true;
+            }
         }
     }
 
@@ -256,6 +322,13 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
         ChipLabelBinding binding = ChipLabelBinding.inflate(inflater);
         binding.getRoot().setText(R.string.custom);
         b.labelChips.addView(binding.getRoot());
+
+        if(item!=null && !isAlreadyChecked){
+            binding.getRoot().setChecked(true);
+            b.customLabelTIL.setVisibility(View.VISIBLE);
+            b.customLabelET.setText(item.label);
+            isCustomLabel = true;
+        }
 
         binding.getRoot().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -275,6 +348,11 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
             ChipColorBinding binding = ChipColorBinding.inflate(inflater);
             binding.getRoot().setChipBackgroundColor(ColorStateList.valueOf(color));
             b.colorChips.addView(binding.getRoot());
+
+            //For preSelected Color chips on edit:
+            if(item != null && item.color == color){
+                binding.getRoot().setChecked(true);
+            }
         }
     }
 
@@ -304,7 +382,7 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
 
                 //Get color & label
                 if (isCustomLabel){
-                    label = b.customLabelET.getText().toString().trim();
+                    label = Objects.requireNonNull(b.customLabelET.getText()).toString().trim();
                     if (label.isEmpty()){
                         Toast.makeText(context, "Please enter custom label!", Toast.LENGTH_SHORT).show();
                         return;
@@ -313,8 +391,8 @@ public class AddImageDialog implements ItemHelper.OnCompleteListener{
                     label = ((Chip) b.labelChips.findViewById(labelChipId)).getText().toString();
                 }
 
-                int color = ((Chip) b.colorChips.findViewById(colorChipId))
-                        .getChipBackgroundColor().getDefaultColor();
+                int color = Objects.requireNonNull(((Chip) b.colorChips.findViewById(colorChipId))
+                        .getChipBackgroundColor()).getDefaultColor();
 
                 //Send Callback
                 listener.onImageAdded(new Item(url, color, label));

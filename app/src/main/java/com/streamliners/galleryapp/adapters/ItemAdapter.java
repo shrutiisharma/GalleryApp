@@ -1,14 +1,22 @@
 package com.streamliners.galleryapp.adapters;
 
 import android.content.Context;
+import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.streamliners.galleryapp.GalleryActivity;
+import com.streamliners.galleryapp.R;
 import com.streamliners.galleryapp.databinding.ItemCardBinding;
 import com.streamliners.galleryapp.models.Item;
 
@@ -17,11 +25,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> {
+public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder> implements ItemTouchHelperAdapter{
 
     private final Context context;
     private final List<Item> allItems;
     private List<Item> visibleItems;
+    public String url;
+    public int index;
+    public ItemCardBinding itemCardBinding;
+    public ItemTouchHelper mItemTouchHelper;
+    public int mode;
+    public List<ItemViewHolder> holderList = new ArrayList<>();
 
 
 
@@ -92,6 +106,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
     public void onBindViewHolder(@NonNull ItemAdapter.ItemViewHolder holder, int position) {
         Item item = visibleItems.get(position);
 
+        holderList.add(holder);
         //inflate & bind data in card
         holder.b.title.setText(item.label);
         holder.b.title.setBackgroundColor(item.color);
@@ -122,20 +137,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
      */
     public void filter(String query) {
 
+        ((GalleryActivity)context).findViewById(R.id.emptySearchResult).setVisibility(View.GONE);
+
         //No query, show all items
         if (query.trim().isEmpty()){
             visibleItems = allItems;
+            ((GalleryActivity)context).findViewById(R.id.noItemsTV).setVisibility(View.GONE);
             notifyDataSetChanged();
             return;
         }
 
         //filter & add to visibleCourses
-        List<Item> temp = new ArrayList<>();
         query = query.toLowerCase();
+        List<Item> temp = new ArrayList<>();
 
         for (Item item : allItems) {
             if (item.label.toLowerCase().contains(query))
                 temp.add(item);
+        }
+
+        if(temp.size() == 0){
+            ((GalleryActivity)context).findViewById(R.id.emptySearchResult).setVisibility(View.VISIBLE);
+            ((GalleryActivity)context).findViewById(R.id.noItemsTV).setVisibility(View.GONE);
         }
 
         visibleItems = temp;
@@ -163,29 +186,40 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         notifyDataSetChanged();
     }
 
+    public void setListItemAdapterHelper(ItemTouchHelper itemTouchHelper){
+        mItemTouchHelper = itemTouchHelper;
+    }
 
     /**
      * To Move Items For Drag-Drop Functionality
      * @param fromPosition initial position
      * @param toPosition final position
      */
+    @Override
     public void onItemMove(int fromPosition, int toPosition) {
 
-        Collections.swap(allItems, allItems.indexOf(visibleItems.get(fromPosition)), allItems.indexOf(visibleItems.get(toPosition)));
-        Collections.swap(visibleItems, fromPosition, toPosition);
-
+        Item fromItem=allItems.get(fromPosition);
+        allItems.remove(fromItem);
+        allItems.add(toPosition,fromItem);
+        visibleItems = allItems;
         notifyItemMoved(fromPosition, toPosition);
     }
 
+    @Override
+    public void onItemDelete(int position){
+        return;
+    }
 
 
     /**
      * ViewHolder
      * Represents view holder for the recycler view
      */
-    static class ItemViewHolder extends RecyclerView.ViewHolder{
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener, View.OnTouchListener, GestureDetector.OnGestureListener{
+
         //declare view binding object
         ItemCardBinding b;
+        GestureDetector gestureDetector;
 
         /**
          * To give binding to the holder
@@ -194,7 +228,81 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         public ItemViewHolder(ItemCardBinding b) {
             super(b.getRoot());
             this.b = b;
+            gestureDetector = new GestureDetector(b.getRoot().getContext(), this);
+            eventListenerHandler();
         }
 
+
+        public void eventListenerHandler() {
+            if(mode == 0){
+                b.imageView.setOnTouchListener(null);
+                b.title.setOnTouchListener(null);
+                b.title.setOnCreateContextMenuListener(this);
+                b.imageView.setOnCreateContextMenuListener(this);
+            }
+            else if(mode == 1){
+                b.title.setOnCreateContextMenuListener(null);
+                b.imageView.setOnCreateContextMenuListener(null);
+                b.title.setOnTouchListener(this);
+                b.imageView.setOnTouchListener(this);
+            }
+        }
+
+        @Override
+        //Context Menu For Edit and Share Options:
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.add(this.getAbsoluteAdapterPosition(), R.id.editCard,0,"Edit");
+            menu.add(this.getAbsoluteAdapterPosition(), R.id.deleteCard,0,"Delete");
+            menu.add(this.getAbsoluteAdapterPosition(),R.id.shareCard,0,"Share");
+            url = allItems.get(this.getAbsoluteAdapterPosition()).url;
+            index = this.getAbsoluteAdapterPosition();
+            itemCardBinding = b;
+        }
+
+        /**
+         * Called when a touch event is dispatched to a view. This allows listeners to
+         * get a chance to respond before the target view.
+         *
+         * @param v     The view the touch event has been dispatched to.
+         * @param event The MotionEvent object containing full information about
+         *              the event.
+         * @return True if the listener has consumed the event, false otherwise.
+         */
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            gestureDetector.onTouchEvent(event);
+            return true;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            if(mode == 1)
+                mItemTouchHelper.startDrag(this);
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
     }
 }

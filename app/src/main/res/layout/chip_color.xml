@@ -8,4 +8,4 @@
     style="@style/Widget.MaterialComponents.Chip.Filter"
     app:chipBackgroundColor="@color/design_default_color_primary"
     app:checkedIconTint="@color/white"
-    tools:showIn="@layout/dialog_add_image" />
+    tools:showIn="@layout/dialog_image_operations" />

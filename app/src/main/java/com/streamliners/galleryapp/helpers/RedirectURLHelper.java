@@ -1,4 +1,4 @@
-package com.streamliners.galleryapp;
+package com.streamliners.galleryapp.helpers;
 
 import android.os.AsyncTask;
 

@@ -1,4 +1,4 @@
-package com.streamliners.galleryapp;
+package com.streamliners.galleryapp.helpers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -50,7 +50,7 @@ public class ItemHelper {
      *                  Listeners are used for any type of asynchronous event
      *                  in order to implement the code to run when an event occurs
      */
-    void fetchData(int x, int y, Context context, OnCompleteListener listener) throws IOException {
+    public void fetchData(int x, int y, Context context, OnCompleteListener listener) throws IOException {
 
         this.context = context;
         this.listener = listener;
@@ -71,7 +71,7 @@ public class ItemHelper {
      *                  Listeners are used for any type of asynchronous event
      *                  in order to implement the code to run when an event occurs
      */
-    void fetchData(int x, Context context, OnCompleteListener listener) throws IOException {
+    public void fetchData(int x, Context context, OnCompleteListener listener) throws IOException {
 
         this.context = context;
         this.listener = listener;
@@ -83,6 +83,12 @@ public class ItemHelper {
     }
 
 
+    public void fetchData(String url,Context context,OnCompleteListener listener ){
+        this.context = context;
+        this.listener = listener;
+        redirectedURL = url;
+        fetchImage(url);
+    }
 
     //Fetch URL ----------------------------------------------------------------------------------------
 
@@ -218,6 +224,28 @@ public class ItemHelper {
 
 
 
+    public void editCard(String url, Context context, OnCompleteListener listener) {
+        this.context = context;
+        this.redirectedURL = url;
+        this.listener = listener;
+        Glide.with(context)
+                .asBitmap()
+                .onlyRetrieveFromCache(true)
+                .load(url)
+                .into(new CustomTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        bitmap = resource;
+                        extractPaletteFromBitmap();
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
+    }
+
     // Listener -----------------------------------------------------------------------------
 
     /**
@@ -228,7 +256,7 @@ public class ItemHelper {
      * Therefore we have to implement listener, which will then call the onFetched method when the data will be completely loaded.
      * The 3 asyncTasks can't be implemented parallelly so we implement them sequentially, as done above.
      */
-    interface OnCompleteListener{
+    public interface OnCompleteListener{
         void onFetched(String redirectedURL, Set<Integer>colors, List<String> labels);
         void onError(String error);
     }

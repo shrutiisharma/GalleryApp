@@ -18,6 +18,17 @@
     <string name="no_items_to_show_try_adding_from_the_action_above">No items to show!\n Try adding from the actions above.</string>
     <string name="add_image_from_device">Add Image from Device</string>
     <string name="share">Share</string>
+    <string name="editCard">Edit</string>
+    <string name="deleteCard">Share</string>
     <string name="search_image">Search Image</string>
     <string name="sort_alphabetically">Sort Alphabetically</string>
+    <string name="drag_and_drop">drag_and_drop</string>
+    <string name="no_items_found">No items found.</string>
+    <string name="no_items_to_sort">"No items available to sort. "</string>
+    <string name="fetching_image">Fetching image...</string>
+    <string name="choose_a_new_palette_color">Choose a new palette color</string>
+    <string name="edit_image">Edit Image</string>
+    <string name="update">Update</string>
+    <string name="loading_image">Loading Image....</string>
+    <string name="choose_a_new_label">Choose a new label</string>
 </resources>
