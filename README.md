@@ -21,6 +21,8 @@ This is a simple Gallery Application to display images with labels.
 - Add Sort alphabetically action to the action bar
 - Add Search functionality
 - Add Swipe to remove functionality
+- Implement Contextual menu
+- Edit feature
 
 
-### Have a run at it with the APK [here](https://github.com/shrutiisharma/GalleryApp/releases/download/version2/app-debug.apk)!
+### Have a run at it with the APK [here](https://github.com/shrutiisharma/GalleryApp/releases/download/version3/app-debug.apk)!
