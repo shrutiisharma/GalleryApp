@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.streamliners.galleryapp.adapters.ItemAdapter;
 import com.streamliners.galleryapp.databinding.ActivityGalleryBinding;
 import com.streamliners.galleryapp.databinding.ItemCardBinding;
@@ -48,7 +47,6 @@ public class GalleryActivity extends AppCompatActivity {
     ActivityGalleryBinding b;
 
     SharedPreferences preferences;
-    Gson gson = new Gson();
     List<Item> items = new ArrayList<>();
 
     private static final int REQUEST_LOAD_IMAGE = 0;
@@ -77,11 +75,7 @@ public class GalleryActivity extends AppCompatActivity {
 
         preferences = getPreferences(MODE_PRIVATE);
 
-        if(savedInstanceState != null){
-            savedInstance(savedInstanceState);
-        }else{
-            loadSharedPreferences();
-        }
+        loadSharedPreferences();
 
         enableDisableDrag();
     }
@@ -269,17 +263,6 @@ public class GalleryActivity extends AppCompatActivity {
 
     //Swipe to Remove & Drag and Drop Functionality ------------------------------------------------------------------------
 
-    /**
-     * Callback for Item
-     * To implement swipe to remove & drag and drop functionality
-     *//*
-    private void callbackForItem() {
-        itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-        itemTouchHelper.attachToRecyclerView(b.list);
-        adapter.setListItemAdapterHelper(itemTouchHelper);
-    }*/
-
-
     ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
         @Override
@@ -300,9 +283,6 @@ public class GalleryActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         }
     };
-
-
-
 
 
     private void enableDisableDrag() {
@@ -345,7 +325,6 @@ public class GalleryActivity extends AppCompatActivity {
     @SuppressLint("UseCompatLoadingForColorStateLists")
     void dragDropButtonRestore() {
         if (mode == 1) {
-            mode = 1;
             adapter.mode = 1;
             List<ItemAdapter.ItemViewHolder> holders = adapter.holderList;
             b.dragListener.setBackgroundTintList(getResources().getColorStateList(R.color.purple_500));
@@ -371,9 +350,18 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
 
+
+
+    //Context Menu Events -------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Handling events of Context Menu Item Selection
+     * @param item : context menu item selected
+     * @return true if the event is handled
+     */
     @Override
-    //Handling events of Context Menu Item Selection:
     public boolean onContextItemSelected (MenuItem item) {
+        binding = adapter.itemCardBinding;
         //For edit image option:
         if (item.getItemId() == R.id.editCard){
             editImage();
@@ -396,6 +384,9 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * To edit card
+     */
     private void editImage() {
         int index = adapter.index;
         binding = adapter.itemCardBinding;
@@ -417,6 +408,9 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
 
+
+    //Share Feature -------------------------------------------------------------------------------------------------------------------
+
     private void sharePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
@@ -435,11 +429,10 @@ public class GalleryActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0]==PackageManager.PERMISSION_GRANTED){
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
             shareItem(binding);
         }
         else{
@@ -447,6 +440,10 @@ public class GalleryActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * To share item
+     * @param binding of view to be shared
+     */
     private void shareItem(ItemCardBinding binding){
 
         Bitmap icon = loadBitmapFromView(binding.getRoot());
@@ -476,8 +473,6 @@ public class GalleryActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(share, "Share Image"));
     }
 
-
-
     /**
      * To Load Bitmap From View
      * @param view to load the view
@@ -503,34 +498,8 @@ public class GalleryActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * This method will save the item card so that when the screen is rotated the data is not lost.
-     */
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        String json = gson.toJson(items);
-        outState.putString(Constants.NO_OF_IMG, json);
-    }
 
-    /**
-     * This method contains the saved instance data and it will prevent loss of data when the screen
-     *  is rotated.
-     * @param savedInstanceState : reference to a Bundle object that is passed into the onCreate method of every Android Activity
-     */
-    private void savedInstance(Bundle savedInstanceState) {
-        //b.noItemsTV.setVisibility(View.GONE);
-        String json = savedInstanceState.getString(Constants.NO_OF_IMG, null);
-        items = gson.fromJson(json, new TypeToken<List<Item>>() {
-        }.getType());
-        if(items != null){
-            b.noItemsTV.setVisibility(View.GONE);
-            inflateViewForItem();
-        }else{
-            items = new ArrayList<>();
-            b.noItemsTV.setVisibility(View.VISIBLE);
-        }
-    }
+
 
     //Shared Preferences -------------------------------------------------------------------------------
 
@@ -562,12 +531,12 @@ public class GalleryActivity extends AppCompatActivity {
      * To get data back from sharedPreferences.
      */
     private void loadSharedPreferences() {
-        int itemCount = preferences.getInt(Constants.NO_OF_IMG,0);
+        int itemCount = this.preferences.getInt(Constants.NO_OF_IMG,0);
 
         for (int i = 1; i <= itemCount; i++){
 
             //Make a new item and get objects from json
-            Item item = jsonToItem(preferences.getString(Constants.ITEMS + i, ""));
+            Item item = jsonToItem(this.preferences.getString(Constants.ITEMS + i, ""));
 
             items.add(item);
             inflateViewForItem();

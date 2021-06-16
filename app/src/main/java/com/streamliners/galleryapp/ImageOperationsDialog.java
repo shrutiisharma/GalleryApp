@@ -72,6 +72,12 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
     }
 
 
+    /**
+     * To initialize the dialog
+     * @param context : To show the dialog, context is needed; hence, it is passed.
+     * @param listener : For creating asynchronous callback.
+     * @return boolean true
+     */
     private boolean initializingDialog(Context context,OnCompleteListener listener){
         this.context=context;
         this.listener = listener;
@@ -96,6 +102,9 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
         return true;
     }
 
+
+
+
     //Utils-------------------------------------------------------------------------------------------------
 
     /**
@@ -118,6 +127,15 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
 
             }
         });
+    }
+
+
+    /**
+     * Hide Keyboard
+     */
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager)context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(b.widthTIL.getWindowToken(), 0);
     }
 
 
@@ -180,19 +198,10 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
     }
 
 
-    /**
-     * Hide Keyboard
-     */
-    private void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager)context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(b.widthTIL.getWindowToken(), 0);
-    }
 
 
 
-
-
-    //Step 2 : Fetch Random Image----------------------------------------------------------------------------
+    //Step 2 : Fetch Image----------------------------------------------------------------------------
 
     /**
      * Rectangular Image
@@ -216,7 +225,12 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
     }
 
 
-
+    /**
+     * Fetch image from device
+     * @param url Image url
+     * @param context To show the dialog, context is needed; hence, it is passed.
+     * @param listener For creating asynchronous callback.
+     */
     public void fetchDataFromDevice(String url,Context context,OnCompleteListener listener){
         this.listener = listener;
         this.context = context;
@@ -245,28 +259,6 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
 
 
 
-    public void editFetchImage(Context context,Item item,OnCompleteListener listener){
-        this.url = item.url;
-        this.item = item;
-
-        if(!initializingDialog(context,listener)){
-            return;
-        }
-
-        b.dialogHeader.setText(R.string.edit_image);
-        b.addBtn.setText(R.string.update);
-        b.progressSubtitle.setText(R.string.loading_image);
-        b.choosePaletteTitle.setText(R.string.choose_a_new_palette_color);
-        b.chooseLabelTitle.setText(R.string.choose_a_new_label);
-        editCard(url);
-    }
-
-    private void editCard(String imageUrl) {
-        b.inputDimensionsRoot.setVisibility(View.GONE);
-        b.progressIndicatorRoot.setVisibility(View.VISIBLE);
-
-        new ItemHelper().editCard(imageUrl, context, this);
-    }
 
     //Step 3: Show Data------------------------------------------------------------------------------------------
 
@@ -360,7 +352,7 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
 
 
 
-    //Handle onClick Events ------------------------------------------------------------------
+    //Handle onClick Events -------------------------------------------------------------------------------------------
 
     /**
      * Handle AddImage Button Clicked Event
@@ -453,6 +445,46 @@ public class ImageOperationsDialog implements ItemHelper.OnCompleteListener{
                 }
             }
         });
+    }
+
+
+
+
+
+    //Handle Edit Card Event -----------------------------------------------------------------------------------------
+
+    /**
+     * Fetch image to edit
+     * @param context To show the dialog, context is needed; hence, it is passed.
+     * @param item item to edit
+     * @param listener For creating asynchronous callback.
+     */
+    public void editFetchImage(Context context,Item item,OnCompleteListener listener){
+        this.url = item.url;
+        this.item = item;
+
+        if(!initializingDialog(context,listener)){
+            return;
+        }
+
+        b.dialogHeader.setText(R.string.edit_image);
+        b.addBtn.setText(R.string.update);
+        b.progressSubtitle.setText(R.string.loading_image);
+        b.choosePaletteTitle.setText(R.string.choose_a_new_palette_color);
+        b.chooseLabelTitle.setText(R.string.choose_a_new_label);
+        editCard(url);
+    }
+
+
+    /**
+     * To edit card
+     * @param imageUrl url of image
+     */
+    private void editCard(String imageUrl) {
+        b.inputDimensionsRoot.setVisibility(View.GONE);
+        b.progressIndicatorRoot.setVisibility(View.VISIBLE);
+
+        new ItemHelper().editCard(imageUrl, context, this);
     }
 
 

@@ -83,12 +83,24 @@ public class ItemHelper {
     }
 
 
+    /**
+     * Fetch data to edit
+     * @param url of image
+     * @param context context of the current state of the application
+     *              As Glide needs context, hence we defined it
+     * @param listener for creating asynchronous callback
+     *                 Listeners are used for any type of asynchronous event
+     *                 in order to implement the code to run when an event occurs
+     */
     public void fetchData(String url,Context context,OnCompleteListener listener ){
         this.context = context;
         this.listener = listener;
         redirectedURL = url;
         fetchImage(url);
     }
+
+
+
 
     //Fetch URL ----------------------------------------------------------------------------------------
 
@@ -224,6 +236,15 @@ public class ItemHelper {
 
 
 
+    /**
+     * To edit card
+     * @param url of image
+     * @param context context of the current state of the application
+     *              As Glide needs context, hence we defined it
+     * @param listener for creating asynchronous callback
+     *                 Listeners are used for any type of asynchronous event
+     *                 in order to implement the code to run when an event occurs
+     */
     public void editCard(String url, Context context, OnCompleteListener listener) {
         this.context = context;
         this.redirectedURL = url;
@@ -245,6 +266,9 @@ public class ItemHelper {
                     }
                 });
     }
+
+
+
 
     // Listener -----------------------------------------------------------------------------
 

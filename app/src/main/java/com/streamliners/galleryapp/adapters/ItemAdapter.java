@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -186,6 +185,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         notifyDataSetChanged();
     }
 
+
+
+
+
+    /**
+     * Utility class
+     * to add swipe to dismiss and drag & drop support to RecyclerView.
+     * It works with a RecyclerView and a Callback class,
+     * which configures what type of interactions are enabled and
+     * also receives events when user performs these actions.
+     * @param itemTouchHelper helper for touch actions
+     */
     public void setListItemAdapterHelper(ItemTouchHelper itemTouchHelper){
         mItemTouchHelper = itemTouchHelper;
     }
@@ -205,10 +216,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         notifyItemMoved(fromPosition, toPosition);
     }
 
+    /**
+     * To swipe delete item
+     * @param position of item
+     */
     @Override
     public void onItemDelete(int position){
-        return;
     }
+
+
+
 
 
     /**
@@ -233,6 +250,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         }
 
 
+        /**
+         * To handle events of drag & drop FAB
+         */
         public void eventListenerHandler() {
             if(mode == 0){
                 b.imageView.setOnTouchListener(null);
@@ -248,8 +268,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             }
         }
 
+        /**
+         * Context Menu For Edit, Delete, Share Options
+         * @param menu To show a context menu on long click
+         * @param v basic building block for user interface components
+         * @param menuInfo Additional information regarding the creation of the context menu
+         */
         @Override
-        //Context Menu For Edit and Share Options:
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
             menu.add(this.getAbsoluteAdapterPosition(), R.id.editCard,0,"Edit");
             menu.add(this.getAbsoluteAdapterPosition(), R.id.deleteCard,0,"Delete");
@@ -274,6 +299,17 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
             return true;
         }
 
+        /**
+         * Long Press for Drag & Drop action
+         * @param e : long press motion event
+         */
+        @Override
+        public void onLongPress(MotionEvent e) {
+            if(mode == 1)
+                mItemTouchHelper.startDrag(this);
+        }
+
+
         @Override
         public boolean onDown(MotionEvent e) {
             return false;
@@ -292,12 +328,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemViewHolder
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-            if(mode == 1)
-                mItemTouchHelper.startDrag(this);
         }
 
         @Override
