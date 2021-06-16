@@ -1,6 +1,6 @@
 # Gallery App
 
-This is a simple Gallery Application to display images with labels.
+This is a Gallery Application to display images with labels and other features.
 
 ### With this application I have learnt various concepts, such as:
 
